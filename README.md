@@ -1,82 +1,143 @@
-Sentiment Analysis with RNN - README
-This project implements a sentiment analysis model for Vietnamese text using a Recurrent Neural Network (RNN). The model consists of three main components: data preprocessing (Phụ lục A), model architecture (Phụ lục B), and training (Phụ lục C). Below are the instructions to set up and run the program.
-Prerequisites
-Software Requirements
+Sentiment Analysis with RNN for Vietnamese Text
 
-Python 3.8 or higher
-pip (Python package manager)
+A simple yet effective sentiment analysis model for Vietnamese text using a Recurrent Neural Network (RNN). The model processes text through an Embedding layer, an RNN layer, and a Dense layer to classify sentiments as Positive, Negative, or Neutral.
+📖 Project Overview
+This project implements a sentiment analysis pipeline for Vietnamese text using PyTorch. It consists of three main components:
+
+Data Preprocessing (Phụ lục A): Loads, tokenizes, and prepares the dataset for training.
+Model Architecture (Phụ lục B): Defines the RNN model with Embedding, RNN, and Dense layers.
+Training (Phụ lục C): Trains the model using SGD and saves the trained weights.
+
+The model architecture is as follows:
+
+Embedding: vocab_size × 100
+RNN: 100 → 128
+Dense: 128 → 3 (output classes: Positive, Negative, Neutral)
+
+🚀 Getting Started
+Prerequisites
+Ensure you have the following installed:
+
+Python: Version 3.8 or higher
+pip: Python package manager
 
 Required Libraries
-You need to install the following Python libraries:
-
-pandas: For reading and processing the dataset.
-torch: For building and training the RNN model.
-pyvi: For Vietnamese text tokenization.
-
-Install the required libraries using the following command:
+Install the necessary Python libraries using the command below:
 pip install pandas torch pyvi
 
+
+pandas: For dataset handling
+torch: For building and training the model
+pyvi: For Vietnamese text tokenization
+
 Project Structure
+sentiment-analysis-rnn/
+│
+├── data_preprocessing.py   # Phụ lục A: Data loading and preprocessing
+├── model.py                # Phụ lục B: RNN model architecture
+├── train.py                # Phụ lục C: Model training script
+├── sentiment_data.csv      # Dataset (not included; provide your own)
+├── sentiment_model.pth     # Trained model weights (generated after training)
+└── README.md               # Project documentation
 
-data_preprocessing.py: Code for data loading and preprocessing (Phụ lục A).
-model.py: Code for the RNN model architecture (Phụ lục B).
-train.py: Code for training the model (Phụ lục C).
-sentiment_data.csv: The dataset file (not included; you need to provide your own CSV file with text and label columns).
+Dataset
 
-Setup and Running the Program
-Step 1: Prepare the Dataset
-
-Ensure you have a sentiment_data.csv file in the project directory.
-The CSV file should have two columns: text (Vietnamese text) and label (one of Positive, Negative, Neutral).
-
-Step 2: Run Data Preprocessing (Phụ lục A)
-This script loads the dataset, tokenizes the text, and prepares a PyTorch DataLoader.
-
-Save the code from Phụ lục A as data_preprocessing.py.
-Run the script to verify that the data is loaded correctly:python data_preprocessing.py
-
-
-This script will load the dataset and create a DataLoader. No output is generated, but it will raise an error if the dataset is not found or improperly formatted.
+The dataset should be a CSV file named sentiment_data.csv.
+Required columns:
+text: Vietnamese text
+label: Sentiment label (Positive, Negative, or Neutral)
 
 
 
-Step 3: Define the Model (Phụ lục B)
-This script defines the RNN model architecture with an Embedding layer, RNN layer, and Dense layer.
+Example:
 
-Save the code from Phụ lục B as model.py.
-No need to run this file directly; it will be imported in the training step.
-
-Step 4: Train the Model (Phụ lục C)
-This script trains the model using the DataLoader and saves the trained model.
-
-Save the code from Phụ lục C as train.py.
-Ensure data_preprocessing.py and model.py are in the same directory.
-Run the training script:python train.py
+text  label
 
 
-The script will train the model for 10 epochs and print the loss for each epoch.
-After training, the model will be saved as sentiment_model.pth in the project directory.
+
+Tối nay hoàn thành dự án, Positive
 
 
+Tôi không thích cái này, Negative
+
+
+Thời tiết hôm nay bình thường, Neutral
+
+
+🛠️ Installation and Setup
+Step 1: Clone the Repository
+git clone https://github.com/hoangtuan203/Recurrent-Neural-Network.git
+cd Recurrent-Neural-Network
+
+Step 2: Install Dependencies
+Install the required libraries:
+pip install -r requirements.txt
+
+Note: If requirements.txt is not provided, manually install the libraries listed in the Prerequisites section.
+Step 3: Prepare the Dataset
+Place your sentiment_data.csv file in the project directory. Ensure it follows the format described above.
+▶️ Running the Program
+1. Data Preprocessing (Phụ lục A)
+This script prepares the dataset for training.
+python data_preprocessing.py
+
+
+What it does: Loads the CSV file, tokenizes the text using pyvi, and creates a PyTorch DataLoader.
+
+2. Model Definition (Phụ lục B)
+The model architecture is defined in model.py. No need to run this file directly; it will be imported during training.
+3. Training the Model (Phụ lục C)
+Train the model and save the weights.
+python train.py
+
+
+What it does: Trains the model for 10 epochs using SGD, prints the loss per epoch, and saves the trained model as sentiment_model.pth.
 
 Expected Output
-
-During training, you will see the loss printed for each epoch, e.g.:Epoch 1, Loss: 1.098
+During training, you’ll see the loss for each epoch:
+Epoch 1, Loss: 1.098
 Epoch 2, Loss: 0.987
 ...
+Epoch 10, Loss: 0.654
+
+After training, a file sentiment_model.pth will be created in the project directory.
+📊 Model Architecture
+The model consists of three layers:
+
+Embedding Layer: Converts text to vectors (vocab_size × 100)
+RNN Layer: Processes sequences (100 → 128 hidden units)
+Dense Layer: Outputs sentiment classes (128 → 3)
+
+🖥️ Usage Notes
+
+GPU Support: The script defaults to CPU. To use GPU, ensure CUDA is installed and modify train.py to set device = torch.device('cuda').
+Dataset: If sentiment_data.csv is missing or incorrectly formatted, the program will raise a FileNotFoundError or KeyError.
+Vocabulary Size: The model dynamically builds the vocabulary from the dataset. For very large datasets, you may need to adjust vocab_size in model.py.
+
+🔧 Troubleshooting
 
 
-After training, a file named sentiment_model.pth will be created, containing the trained model weights.
 
-Notes
+Issue
+Solution
 
-Ensure the sentiment_data.csv file exists and follows the correct format (columns: text, label).
-If you encounter a FileNotFoundError, double-check the path to sentiment_data.csv.
-The model assumes a vocabulary size based on the dataset. If your dataset is very large, you may need to adjust the vocab_size in model.py.
-Training on CPU is supported by default. To use GPU, ensure CUDA is installed and PyTorch is configured to use GPU.
 
-Troubleshooting
 
-ModuleNotFoundError: Ensure all required libraries (pandas, torch, pyvi) are installed.
-CUDA-related errors: If using GPU, ensure your PyTorch installation supports CUDA. Otherwise, set device = torch.device('cpu') in train.py.
+ModuleNotFoundError
+Ensure all libraries (pandas, torch, pyvi) are installed.
 
+
+FileNotFoundError
+Verify sentiment_data.csv exists in the project directory.
+
+
+CUDA errors
+Set device = torch.device('cpu') in train.py if GPU is unavailable.
+
+
+📜 License
+This project is licensed under the MIT License.
+🙌 Contributing
+Feel free to open issues or submit pull requests if you have suggestions or improvements!
+
+Built with ❤️ by Hoang Tuan
