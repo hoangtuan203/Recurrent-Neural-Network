@@ -1,4 +1,3 @@
-# data.py
 import pandas as pd
 import nltk
 from torchtext.vocab import GloVe
@@ -12,35 +11,36 @@ tokenizer = get_tokenizer("basic_english")
 class SentimentDataset(Dataset):
     def __init__(self, csv_file, max_len=50, pretrained=True):
         self.data = pd.read_csv(csv_file)
+        # Kiểm tra cột cần thiết
+        required_columns = ['text', 'label']
+        if not all(col in self.data.columns for col in required_columns):
+            raise ValueError(f"CSV file must contain {required_columns} columns")
         self.max_len = max_len
         self.label_map = {"Positive": 0, "Negative": 1, "Neutral": 2}
         self.pretrained = pretrained
         self.vocab = GloVe(name='6B', dim=100) if pretrained else None
         self.word2idx = {"<PAD>": 0, "<UNK>": 1}
         self.build_vocab()
-        # Tạo embedding matrix nếu dùng pretrained
         if pretrained:
             self.embedding_matrix = self.build_embedding_matrix()
 
     def build_vocab(self):
         idx = len(self.word2idx)
         for text in self.data['text']:
-            tokens = tokenizer(text.lower())
+            tokens = tokenizer(str(text).lower())  # Chuyển text thành chuỗi để tránh lỗi
             for token in tokens:
                 if token not in self.word2idx:
                     self.word2idx[token] = idx
                     idx += 1
 
     def build_embedding_matrix(self):
-        # Tạo embedding matrix với kích thước [vocab_size, embedding_dim]
-        embedding_matrix = torch.zeros(len(self.word2idx), 100)  # 100 là dim của GloVe
+        embedding_matrix = torch.zeros(len(self.word2idx), 100)
         for word, idx in self.word2idx.items():
             if word in ["<PAD>", "<UNK>"]:
-                continue  # Bỏ qua PAD và UNK, để mặc định là vector 0
+                continue
             try:
                 embedding_matrix[idx] = self.vocab[word]
             except KeyError:
-                # Nếu từ không có trong GloVe, để vector 0
                 pass
         return embedding_matrix
 
@@ -48,9 +48,12 @@ class SentimentDataset(Dataset):
         return len(self.data)
 
     def __getitem__(self, idx):
-        text = self.data.iloc[idx]['text'].lower()
+        text = str(self.data.iloc[idx]['text']).lower()
         label = self.label_map[self.data.iloc[idx]['label']]
         tokens = tokenizer(text)
+        # Xử lý trường hợp tokens rỗng
+        if not tokens:
+            tokens = ["<UNK>"]
         indices = [self.word2idx.get(token, self.word2idx["<UNK>"]) for token in tokens]
         if len(indices) > self.max_len:
             indices = indices[:self.max_len]
@@ -58,15 +61,15 @@ class SentimentDataset(Dataset):
             indices += [self.word2idx["<PAD>"]] * (self.max_len - len(indices))
         indices = torch.tensor(indices, dtype=torch.long)
         if self.pretrained:
-            embeddings = torch.stack([self.vocab[token] for token in tokens], dim=0)
-            if embeddings.size(0) > self.max_len:
-                embeddings = embeddings[:self.max_len, :]
-            else:
-                padding = torch.zeros(self.max_len - embeddings.size(0), 100)
-                embeddings = torch.cat([embeddings, padding], dim=0)
+            # Sử dụng embedding_matrix thay vì tra cứu lại GloVe
+            embeddings = torch.zeros(self.max_len, 100)
+            for i, idx in enumerate(indices):
+                if i >= self.max_len:
+                    break
+                embeddings[i] = self.embedding_matrix[idx]
             return embeddings, torch.tensor(label, dtype=torch.long)
         else:
-            return indices, torch.tensor(label, dtype=torch.long)  # Trả về indices cho Scratch
+            return indices, torch.tensor(label, dtype=torch.long)
 
 def get_dataloader(csv_file, batch_size=32, pretrained=True):
     dataset = SentimentDataset(csv_file, pretrained=pretrained)
