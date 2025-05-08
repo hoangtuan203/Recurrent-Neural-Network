@@ -1,4 +1,4 @@
-Text,Output
+text,label
 "Hôm nay tơi đi làm muộn.","Negative"
 "Buổi học hôm nay rất thú vị.","Positive"
 "Tôi vừa hoàn thành bài tập đúng hạn.","Positive"
@@ -463,4 +463,3 @@ Text,Output
 "Hôm nay tôi cảm thấy rất hài lòng.","Positive"
 "Tôi phải làm việc với đồng nghiệp khó tính.","Negative"
 "Giáo viên cho tôi thêm thời gian nộp bài.","Positive"
-"Tôi bị trễ

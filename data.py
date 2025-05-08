@@ -11,7 +11,6 @@ tokenizer = get_tokenizer("basic_english")
 class SentimentDataset(Dataset):
     def __init__(self, csv_file, max_len=50, pretrained=True):
         self.data = pd.read_csv(csv_file)
-        # Kiểm tra cột cần thiết
         required_columns = ['text', 'label']
         if not all(col in self.data.columns for col in required_columns):
             raise ValueError(f"CSV file must contain {required_columns} columns")
@@ -27,7 +26,7 @@ class SentimentDataset(Dataset):
     def build_vocab(self):
         idx = len(self.word2idx)
         for text in self.data['text']:
-            tokens = tokenizer(str(text).lower())  # Chuyển text thành chuỗi để tránh lỗi
+            tokens = tokenizer(str(text).lower()) 
             for token in tokens:
                 if token not in self.word2idx:
                     self.word2idx[token] = idx
@@ -51,7 +50,7 @@ class SentimentDataset(Dataset):
         text = str(self.data.iloc[idx]['text']).lower()
         label = self.label_map[self.data.iloc[idx]['label']]
         tokens = tokenizer(text)
-        # Xử lý trường hợp tokens rỗng
+        
         if not tokens:
             tokens = ["<UNK>"]
         indices = [self.word2idx.get(token, self.word2idx["<UNK>"]) for token in tokens]
@@ -61,7 +60,7 @@ class SentimentDataset(Dataset):
             indices += [self.word2idx["<PAD>"]] * (self.max_len - len(indices))
         indices = torch.tensor(indices, dtype=torch.long)
         if self.pretrained:
-            # Sử dụng embedding_matrix thay vì tra cứu lại GloVe
+           
             embeddings = torch.zeros(self.max_len, 100)
             for i, idx in enumerate(indices):
                 if i >= self.max_len:
